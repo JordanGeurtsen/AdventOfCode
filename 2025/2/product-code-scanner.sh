@@ -51,17 +51,35 @@ is_product_code_valid () {
     local code="$1"
     local len="${#code}"
     local isValid=1
+    local half_len=$((len / 2))
 
-    if [[ $((len % 2)) -eq 0 ]]; then
-        local half_len=$((len / 2))
-        local first_half=${code:0:half_len}
-        local second_half=${code:half_len}
-
-        if [[ "$first_half" == "$second_half" ]]; then
-            isValid=0
+    # Only go until half the length of the code, as larger segments can't repeat
+    for ((i=1; i<=half_len; i++)); do
+        local segment_length=$i
+        local num_segments=$((len / segment_length))
+        
+        # Only check if the code can be evenly divided into segments
+        if (( len % segment_length == 0 )); then
+            local first_segment="${code:0:segment_length}"
+            local all_same=1
+            
+            # Check all segments one by one
+            for ((j=1; j<num_segments; j++)); do
+                local current_segment="${code:j*segment_length:segment_length}"
+                if [[ "$current_segment" != "$first_segment" ]]; then
+                    all_same=0
+                    break
+                fi
+            done
+            
+            if [[ $all_same -eq 1 ]]; then
+                isValid=0
+                echo "Found repeating segment '$first_segment' in code '$code'" >&2
+                break
+            fi
         fi
-    fi
-
+    done
+    
     echo $isValid
 }
 
