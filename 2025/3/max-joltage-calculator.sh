@@ -2,6 +2,8 @@
 
 read_input_file $(dirname "$0")/input
 
+NUM_OF_BATTERIES=12
+
 calculate_total_joltage () {
     local banks=("${input[@]}")
     local total_joltage=0
@@ -9,47 +11,33 @@ calculate_total_joltage () {
 
     echo "Total banks: $banks_count" >&2
     for (( i=0; i<$banks_count; i++ )); do
-        total_joltage=$((total_joltage + $(calculate_max_bank_joltage "${banks[$i]}")))
+        total_joltage=$((total_joltage + $(get_highest_bank_joltage "${banks[$i]}")))
     done
 
     echo $total_joltage
 }
 
-calculate_max_bank_joltage () {
+get_highest_bank_joltage () {
     local bank=$1
-    local first_battery_index=$(get_highest_first_battery_index "$bank")
-    local second_battery_index=$(get_highest_second_battery_index "$bank" $first_battery_index)
+    local batteries_gathered=""
+    local current_index=-1
 
-    local first_digit=${bank:$first_battery_index:1}
-    local second_digit=${bank:$second_battery_index:1}
-    local max_joltage="${first_digit}${second_digit}"
-
-    echo $max_joltage
-}
-
-get_highest_first_battery_index () {
-    local bank=$1
-    local highest=0
-    local index=0
-
-    for (( i=0; i<"${#bank}"-1; i++ )); do
-        local number=${bank:$i:1}
-        if (( number > highest )); then
-            highest=$number
-            index=$i
-        fi
+    for (( i=0; i<NUM_OF_BATTERIES; i++ )); do
+        current_index=$(get_next_highest_battery_index "$bank" $current_index $i)
+        batteries_gathered="${batteries_gathered}${bank:$current_index:1}"
     done
 
-    echo $index
+    echo $batteries_gathered
 }
 
-get_highest_second_battery_index () {
+get_next_highest_battery_index () {
     local bank=$1
-    local first_battery_index=$2
+    local index=$2
+    local batteries_already_gathered=$3
+    local number_of_batteries_available=$((${#bank} - (NUM_OF_BATTERIES - $batteries_already_gathered)))
     local highest=0
-    local index=0
 
-    for (( i=first_battery_index+1; i<"${#bank}"; i++ )); do
+    for (( i=index+1; i<$number_of_batteries_available + 1; i++ )); do
         local number=${bank:$i:1}
         if (( number > highest )); then
             highest=$number
