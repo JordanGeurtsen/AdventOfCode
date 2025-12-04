@@ -1,3 +1,5 @@
+#!/bin/bash
+
 . ../util.sh
 
 read_input_file $(dirname "$0")/input
