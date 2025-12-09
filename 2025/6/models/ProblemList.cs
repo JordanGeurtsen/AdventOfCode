@@ -8,9 +8,9 @@ namespace AdventOfCode._2025._6.Models {
             Problems = problems;
         }
 
-        public int SolveAll()
+        public long SolveAll()
         {
-            var results = new List<int>();
+            var results = new List<long>();
             foreach (var problem in Problems)
             {
                 results.Add(problem.Solve());

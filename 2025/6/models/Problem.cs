@@ -2,18 +2,23 @@ namespace AdventOfCode._2025._6.Models {
     public class Problem
     {
         public int[] Numbers { get; set; }
-        public MathSymbol symbol { get; set; }
+        public string symbol { get; set; }
         
-        public int Solve()
+        public long Solve()
         {
             switch (symbol)
             {
-                case var s when s == MathSymbol.ADD:
+                case MathSymbol.ADD:
                     return Numbers.Sum();
-                case var s when s == MathSymbol.MULTIPLY:
-                    return Numbers.Aggregate(1, (acc, val) => acc * val);
+                case MathSymbol.MULTIPLY:
+                    var product = 1;
+                    foreach (var num in Numbers)
+                    {
+                        product *= num;
+                    }
+                    return product;
                 default:
-                    return 0;
+                    throw new InvalidOperationException($"Unknown symbol: {symbol}");
             }
         }
     }
